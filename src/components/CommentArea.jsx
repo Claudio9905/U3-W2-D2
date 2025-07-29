@@ -1,16 +1,27 @@
-import { Component } from "react";
 import CommentList from "./CommentList";
 import AddComment from "./AddComment";
+import { useEffect, useState } from "react";
 
-class CommentArea extends Component {
-  state = {
-    arrayCommentsBook: [],
+const CommentArea = (props) => {
+  // state = {
+  //   arrayCommentsBook: [],
+  // };
+
+  const [arrayCommentsBook, setArrayCommentsBook] = useState([]);
+  const [trigger, setTrigger] = useState(false);
+
+  const toggleTrigger = () => {
+    setTrigger(!trigger);
   };
 
-  getReviews = () => {
+  useEffect(() => {
+    console.log("Recupero i commenti");
+    getReviews();
+  }, [props.idBook, trigger]);
+
+  const getReviews = () => {
     fetch(
-      `https://striveschool-api.herokuapp.com/api/comments/` +
-        this.props.idBook,
+      `https://striveschool-api.herokuapp.com/api/comments/` + props.idBook,
       {
         headers: {
           Authorization:
@@ -27,31 +38,30 @@ class CommentArea extends Component {
       })
       .then((resData) => {
         console.log(resData);
-        this.setState({ arrayCommentsBook: resData });
+        // this.setState({ arrayCommentsBook: resData });
+        setArrayCommentsBook(resData);
       })
       .catch((err) => {
         console.log("ERRORE: ", err);
       });
   };
 
-  componentDidMount() {
-    this.getReviews();
-  }
+  // componentDidMount() {
+  //   getReviews();
+  // }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.idBook != this.props.idBook) {
-      this.getReviews();
-    }
-  }
+  // componentDidUpdate(prevProps) {
+  //   if (prevProps.idBook != props.idBook) {
+  //     getReviews();
+  //   }
+  // }
 
-  render() {
-    return (
-      <>
-        <CommentList recensioni={this.state.arrayCommentsBook} />
-        <AddComment id={this.props.idBook} />
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <CommentList recensioni={arrayCommentsBook} />
+      <AddComment id={props.idBook} toggleTrigger={toggleTrigger} />
+    </>
+  );
+};
 
 export default CommentArea;
